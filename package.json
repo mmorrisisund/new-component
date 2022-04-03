@@ -1,5 +1,5 @@
 {
-  "name": "new-component",
+  "name": "@mimodev/new-component",
   "version": "0.0.1",
   "description": "Automatically generate React components",
   "main": "index.js",
@@ -21,7 +21,8 @@
   },
   "homepage": "https://github.com/mmorrisisund/new-component#readme",
   "dependencies": {
-    "commander": "^9.1.0"
+    "commander": "^9.1.0",
+    "prettier": "^2.6.2"
   },
   "bin": {
     "nc": "./src/index.js"
