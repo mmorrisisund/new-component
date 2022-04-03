@@ -22,5 +22,8 @@
   "homepage": "https://github.com/mmorrisisund/new-component#readme",
   "dependencies": {
     "commander": "^9.1.0"
+  },
+  "bin": {
+    "nc": "./src/index.js"
   }
 }
