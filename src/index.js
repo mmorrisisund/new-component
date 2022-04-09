@@ -4,7 +4,13 @@ const fs = require('fs')
 const fsp = require('fs/promises')
 const path = require('path')
 const { program, Option } = require('commander')
-const { getConfig, getPrettier, getExtensions } = require('./helpers')
+const {
+  getConfig,
+  getPrettier,
+  getExtensions,
+  getIndexTemplate,
+  addDefaultExport,
+} = require('./helpers')
 
 async function main() {
   // Load our package.json, so that we can pass the version onto `commander`.
@@ -33,11 +39,12 @@ async function main() {
     .addOption(
       new Option(
         '-x, --extension <fileExtension>',
-        'Which file extension to use for the component (default: js)'
+        'Which file extension to use for the component (default: javascript)'
       )
         .choices(['javascript', 'typescript'])
         .default(config.extension)
     )
+    .option('--default', 'Add a default export to files')
     .option(
       '-d, --dir <pathToDirectory>',
       'Path to the "components" directory (default: src/components)',
@@ -49,21 +56,16 @@ async function main() {
   const [componentName] = program.args
 
   // get extensions
-  const [componentExt, indexExt] = getExtensions(program.opts().type)
+  const [componentExt, indexExt] = getExtensions(program.opts().extension)
 
   // Find the path to the selected template file.
   const templatePath = `./templates/${program.opts().type}.js`
 
   // Get all of our file paths worked out, for the user's project.
-  const componentDir = `${program.opts().dir}/${componentName}`
+  const parentDir = program.opts().dir
+  const componentDir = `${parentDir}/${componentName}`
   const componentPath = `${componentDir}/${componentName}${componentExt}`
   const indexPath = `${componentDir}/index${indexExt}`
-
-  // Our index template is super straightforward, so we'll just inline it for now.
-  const indexTemplate = prettify(`\
-  export * from './${componentName}';
-  export { default } from './${componentName}';
-  `)
 
   // Check if componentName is provided
   if (!componentName) {
@@ -72,7 +74,7 @@ async function main() {
   }
 
   // Check to see if a directory at the given path exists
-  const fullPathToParentDir = path.resolve(componentDir)
+  const fullPathToParentDir = path.resolve(parentDir)
   if (!fs.existsSync(fullPathToParentDir)) {
     console.error(
       `Sorry, you need to create a parent directory.\n(new-component is looking for a directory at ${
@@ -88,15 +90,22 @@ async function main() {
     console.error('Looks like this component already exists!')
     process.exit(0)
   }
+
   // Start by creating the directory that our component lives in.
   await fsp.mkdir(componentDir)
 
-  // Replace our placeholders with real data (so far, just the component name)
+  // Replace our placeholders with real data
+  const indexTemplate = prettify(
+    getIndexTemplate(componentName, program.opts().default)
+  )
   const template = await fsp.readFile(
     path.join(__dirname, templatePath),
     'utf-8'
   )
-  const modifiedTemplate = template.replace(/COMPONENT_NAME/, componentName)
+  let modifiedTemplate = template.replace(/COMPONENT_NAME/, componentName)
+  if (program.opts().default) {
+    modifiedTemplate = addDefaultExport(componentName, modifiedTemplate)
+  }
 
   // Format it using prettier, to ensure style consistency, and write to file.
   const prettyTemplate = prettify(modifiedTemplate)
