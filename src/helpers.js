@@ -19,7 +19,8 @@ module.exports.getConfig = () => {
   const defaultConfig = {
     type: 'functional',
     dir: 'src/components',
-    extension: 'js',
+    extension: 'javascript',
+    exportType: 'named',
   }
 
   const globalConfig = requireOptional(`/${homeDir}/nc-config.json`)
@@ -56,7 +57,7 @@ module.exports.getPrettier = config => {
     }
   }
 
-  return text => prettier(text, prettierConfig)
+  return text => prettier.format(text, { ...prettierConfig, parser: 'babel' })
 }
 
 /**
@@ -70,4 +71,31 @@ module.exports.getExtensions = extensionType => {
   } else {
     return ['.tsx', '.ts']
   }
+}
+
+/**
+ * Get the index file template based on type of module export
+ * @param {string} name       Name of component file
+ * @param {string} isDefault  Set module export type. Named export if false, default export if true
+ * @returns {string}
+ */
+module.exports.getIndexTemplate = (name, isDefault = false) => {
+  let indexTemplate = `
+  export * from './${name}'
+  `
+  if (isDefault) {
+    indexTemplate = indexTemplate + `export { default } from './${name}'`
+  }
+
+  return indexTemplate
+}
+
+/**
+ * Adds a default export to component file
+ * @param {string} name     Name of component
+ * @param {string} template Component template
+ * @returns {string}
+ */
+module.exports.addDefaultExport = (name, template) => {
+  return template + `\n\n export default ${name}`
 }
