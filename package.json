@@ -1,6 +1,6 @@
 {
   "name": "@mimodev/new-component",
-  "version": "0.0.1",
+  "version": "1.0.0",
   "description": "Automatically generate React components",
   "main": "index.js",
   "scripts": {
