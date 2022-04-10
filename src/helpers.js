@@ -20,7 +20,7 @@ module.exports.getConfig = () => {
     type: 'functional',
     dir: 'src/components',
     extension: 'javascript',
-    exportType: 'named',
+    default: false,
   }
 
   const globalConfig = requireOptional(`/${homeDir}/nc-config.json`)

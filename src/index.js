@@ -44,7 +44,7 @@ async function main() {
         .choices(['javascript', 'typescript'])
         .default(config.extension)
     )
-    .option('--default', 'Add a default export to files')
+    .option('--default', 'Add a default export to files', config.default)
     .option(
       '-d, --dir <pathToDirectory>',
       'Path to the "components" directory (default: src/components)',
