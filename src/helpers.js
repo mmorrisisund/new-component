@@ -23,8 +23,8 @@ module.exports.getConfig = () => {
     default: false,
   }
 
-  const globalConfig = requireOptional(`/${homeDir}/nc-config.json`)
-  const localConfig = requireOptional(`/${currentDir}/nc-config.json`)
+  const globalConfig = requireOptional(`${homeDir}/nc-config.json`)
+  const localConfig = requireOptional(`${currentDir}/nc-config.json`)
 
   return Object.assign({}, defaultConfig, globalConfig, localConfig)
 }
